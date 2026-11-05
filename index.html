@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ovqatchi - retseptlar</title>
+<style>
+:root { --asosiy: #ff6a00; }
+* { box-sizing: border-box; }
+body { margin: 0; font-family: Arial, sans-serif; background: #f4f4f6; color: #222; }
+header { background: var(--asosiy); padding: 12px; position: sticky; top: 0; z-index: 5; }
+.ust { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.ust h1 { margin: 0; color: #fff; font-size: 22px; cursor: pointer; }
+.menu-tugma { background: none; border: none; color: #fff; font-size: 28px; padding: 0 4px; }
+#qidiruv { width: 100%; padding: 12px; border: none; border-radius: 10px; font-size: 16px; }
+
+#bosh { padding: 14px 12px 24px; }
+.katta { display: flex; align-items: center; gap: 16px; width: 100%; padding: 24px 18px; border: none; border-radius: 16px; background: var(--asosiy); color: #fff; font-size: 21px; font-weight: bold; text-align: left; margin-bottom: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
+.katta .e { font-size: 42px; }
+.katta small { display: block; font-weight: normal; font-size: 14px; opacity: 0.9; margin-top: 4px; }
+
+#tablar { display: none; gap: 8px; overflow-x: auto; padding: 12px; }
+.bolim { flex: none; padding: 10px 16px; border: none; border-radius: 20px; background: #fff; font-size: 15px; }
+.bolim.faol { background: var(--asosiy); color: #fff; }
+
+.setka { display: none; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 12px 24px; }
+.karta { background: #fff; border-radius: 14px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+.rasm { font-size: 64px; text-align: center; padding: 22px 0; background: #fff1e6; background: color-mix(in srgb, var(--asosiy) 12%, white); }
+.matn { padding: 10px; }
+.nom { font-weight: bold; font-size: 16px; }
+.kichik { color: #777; font-size: 13px; margin: 4px 0 10px; }
+.btn { width: 100%; padding: 10px; border: none; border-radius: 10px; background: var(--asosiy); color: #fff; font-size: 15px; }
+.bosh-xabar { grid-column: 1 / -1; color: #666; padding: 20px 4px; }
+
+#oyna { display: none; position: fixed; inset: 0; background: #fff; overflow-y: auto; z-index: 10; padding: 16px; }
+#oyna h2 { color: var(--asosiy); }
+#oyna li { font-size: 17px; margin-bottom: 8px; }
+.orqaga { background: #eee; border: none; padding: 10px 16px; border-radius: 10px; font-size: 16px; }
+.video { display: block; text-align: center; background: var(--asosiy); color: #fff; padding: 14px; border-radius: 10px; text-decoration: none; font-size: 17px; margin-top: 20px; }
+
+#parda { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 20; }
+#menu { position: fixed; top: 0; left: -290px; width: 280px; height: 100%; background: #fff; z-index: 21; padding: 20px 16px; transition: left 0.25s; overflow-y: auto; }
+#menu.ochiq { left: 0; }
+#menu h3 { margin: 0 0 16px; color: var(--asosiy); }
+.mb { display: block; width: 100%; text-align: left; background: #f4f4f6; color: #222; border: none; padding: 14px; border-radius: 10px; font-size: 17px; margin-bottom: 10px; text-decoration: none; }
+#panel { display: none; position: fixed; left: 0; right: 0; bottom: 0; background: #fff; z-index: 30; padding: 20px 16px 28px; border-radius: 18px 18px 0 0; box-shadow: 0 -4px 20px rgba(0,0,0,0.25); max-height: 85%; overflow-y: auto; }
+#panel h2 { margin-top: 0; color: var(--asosiy); }
+#panel li { font-size: 16px; margin-bottom: 6px; }
+.narx { font-size: 26px; font-weight: bold; margin: 8px 0 12px; }
+.yop { background: #eee; border: none; padding: 12px; border-radius: 10px; font-size: 16px; width: 100%; margin-top: 14px; }
+.ranglar { display: flex; flex-wrap: wrap; gap: 14px; margin: 14px 0; }
+.rang { width: 46px; height: 46px; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 0 0 2px #ccc; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="ust">
+    <button class="menu-tugma" onclick="menuOchish()">☰</button>
+    <h1 onclick="boshSahifa()">🍳 Ovqatchi</h1>
+  </div>
+  <input id="qidiruv" type="text" placeholder="Taom qidirish..." oninput="chiz()">
+</header>
+
+<div id="bosh"></div>
+<div id="tablar"></div>
+<div class="setka" id="setka"></div>
+
+<div id="oyna"></div>
+
+<div id="parda" onclick="menuYopish()"></div>
+<div id="menu">
+  <h3>Menyu</h3>
+  <button class="mb" onclick="boshSahifa()">🏠 Bosh sahifa</button>
+  <button class="mb" onclick="panelOchish('kirish')">👤 Hisobga kirish</button>
+  <button class="mb" onclick="panelOchish('premium')">⭐ Premium obuna</button>
+  <button class="mb" onclick="panelOchish('dizayn')">🎨 Dizaynni moslash</button>
+  <a class="mb" href="https://instagram.com/ovqatchiuz" target="_blank" rel="noopener">📸 Instagram'da kuzating</a>
+</div>
+<div id="panel"></div>
+
+<script>
+const bolimlar = [
+  { kod: "milliy", nom: "Milliy taomlar", emoji: "🌍" },
+  { kod: "tez", nom: "Tez tayyor bo'ladiganlar", emoji: "⚡" },
+  { kod: "mashhur", nom: "Mashhur taomlar", emoji: "🔥" },
+  { kod: "shirin", nom: "Shirinliklar", emoji: "🍰" }
+];
+
+// Yangi taom qo'shish uchun pastdagi { ... }, blokni nusxalab, ro'yxat oxiriga qo'ying
+const retseptlar = [
+  // ===== MILLIY TAOMLAR =====
+  {
+    nom: "Palov", bolim: "milliy", davlat: "O'zbekiston", emoji: "🍚", vaqt: "90 daqiqa",
+    ingredientlar: ["Guruch: 500 g", "Go'sht: 500 g", "Sabzi: 600 g", "Piyoz: 2 dona", "Yog': 150 ml", "Tuz va zira"],
+    qadamlar: ["Qozonda yog'ni qizdiring.", "Piyoz va go'shtni qovuring.", "Sabzi, suv va ziravorlarni qo'shib, zirvak tayyorlang.", "Yuvilgan guruchni solib, past olovda damlang."],
+    video: ""
+  },
+  {
+    nom: "Lag'mon", bolim: "milliy", davlat: "O'zbekiston", emoji: "🍜", vaqt: "80 daqiqa",
+    ingredientlar: ["Go'sht: 400 g", "Lag'mon xamiri: 400 g", "Sabzi: 2 dona", "Bolgar qalampiri: 2 dona", "Piyoz: 2 dona", "Pomidor pastasi: 2 osh qoshiq"],
+    qadamlar: ["Go'sht va piyozni yog'da qovuring.", "Sabzi, qalampir va pomidor pastasini qo'shing.", "Suv quyib, 40 daqiqa past olovda damlang.", "Xamirni alohida qaynatib, likopchaga soling va ustiga sousni quying."],
+    video: ""
+  },
+  {
+    nom: "Borsh", bolim: "milliy", davlat: "Ukraina", emoji: "🍲", vaqt: "100 daqiqa",
+    ingredientlar: ["Mol go'shti: 400 g", "Lavlagi: 2 dona", "Karam: 200 g", "Kartoshka: 3 dona", "Sabzi va piyoz: 1 tadan", "Pomidor pastasi: 1 osh qoshiq"],
+    qadamlar: ["Go'shtni 1 soat qaynatib bulyon tayyorlang.", "Lavlagi, sabzi va piyozni pomidor pastasi bilan qovuring.", "Bulyonga kartoshka va karamni solib, 15 daqiqa pishiring.", "Qovurmani qo'shib, yana 10 daqiqa qaynating. Smetana bilan iching."],
+    video: ""
+  },
+  {
+    nom: "Gulash", bolim: "milliy", davlat: "Vengriya", emoji: "🥘", vaqt: "120 daqiqa",
+    ingredientlar: ["Mol go'shti: 600 g", "Piyoz: 2 dona", "Kartoshka: 3 dona", "Pomidor: 2 dona", "Paprika: 1 osh qoshiq"],
+    qadamlar: ["Piyozni yog'da yumshaguncha qovuring.", "Paprikani va kubik qilib to'g'ralgan go'shtni qo'shing.", "Pomidor va suv solib, 1,5 soat past olovda damlang.", "Kartoshkani qo'shib, yumshaguncha pishiring."],
+    video: ""
+  },
+  {
+    nom: "Dolma", bolim: "milliy", davlat: "Turkiya", emoji: "🥬", vaqt: "70 daqiqa",
+    ingredientlar: ["Uzum bargi: 30 dona", "Qiyma: 300 g", "Guruch: 100 g", "Piyoz: 1 dona", "Tuz va ziravorlar"],
+    qadamlar: ["Guruch, qiyma, maydalangan piyoz va ziravorlarni aralashtiring.", "Har bir bargga bir oz masalliq solib o'rang.", "Qozonga zich terib, suv quying.", "Ustiga likopcha bosib, 40 daqiqa past olovda pishiring."],
+    video: ""
+  },
+
+  // ===== TEZ TAYYOR BO'LADIGANLAR =====
+  {
+    nom: "Qaymoqli omlet", bolim: "tez", davlat: "Tez taom", emoji: "🍳", vaqt: "10 daqiqa",
+    ingredientlar: ["Tuxum: 3 dona", "Qaymoq: 2 osh qoshiq", "Tuz"],
+    qadamlar: ["Tuxum, qaymoq va tuzni aralashtiring.", "Qizigan tovaga quying.", "Qopqoq yopib, past olovda pishiring."],
+    video: ""
+  },
+  {
+    nom: "Pishloqli tost", bolim: "tez", davlat: "Tez taom", emoji: "🥪", vaqt: "10 daqiqa",
+    ingredientlar: ["Non: 4 tilim", "Pishloq: 4 tilim", "Sariyog': 20 g", "Kolbasa (ixtiyoriy)"],
+    qadamlar: ["Non tilimlariga yupqa sariyog' surting.", "Orasiga pishloq va kolbasa qo'ying.", "Tovada har tomonini 2-3 daqiqa tillarang bo'lguncha qovuring."],
+    video: ""
+  },
+  {
+    nom: "Pomidorli makaron", bolim: "tez", davlat: "Tez taom", emoji: "🍝", vaqt: "20 daqiqa",
+    ingredientlar: ["Makaron: 300 g", "Pomidor sousi: 200 g", "Sarimsoq: 2 tish", "Zaytun yog'i: 2 osh qoshiq", "Tuz"],
+    qadamlar: ["Makaronni tuzli suvda 10 daqiqa qaynating.", "Tovada sarimsoqni yog'da qovurib, pomidor sousini qo'shing va 5 daqiqa qaynating.", "Makaronni suzib, sous bilan aralashtiring."],
+    video: ""
+  },
+  {
+    nom: "Shakshuka", bolim: "tez", davlat: "Tez taom", emoji: "🍅", vaqt: "20 daqiqa",
+    ingredientlar: ["Tuxum: 4 dona", "Pomidor: 4 dona", "Piyoz: 1 dona", "Bolgar qalampiri: 1 dona", "Sarimsoq: 2 tish"],
+    qadamlar: ["Piyoz, qalampir va sarimsoqni yog'da qovuring.", "To'g'ralgan pomidorni qo'shib, 8 daqiqa pishiring.", "Sousda chuqurchalar qilib, tuxumlarni sindiring.", "Qopqoq yopib, tuxum oqi qotguncha pishiring."],
+    video: ""
+  },
+  {
+    nom: "Tez blinlar", bolim: "tez", davlat: "Tez taom", emoji: "🥞", vaqt: "20 daqiqa",
+    ingredientlar: ["Sut: 250 ml", "Un: 150 g", "Tuxum: 2 dona", "Shakar: 1 osh qoshiq", "Tuz: bir chimdim"],
+    qadamlar: ["Tuxum, sut, shakar va tuzni aralashtiring.", "Unni oz-ozdan qo'shib, g'ovaksiz xamir qiling.", "Qizigan tovaga yupqa quyib, har tomonini 1-2 daqiqa pishiring."],
+    video: ""
+  },
+
+  // ===== MASHHUR TAOMLAR =====
+  {
+    nom: "Pitsa", bolim: "mashhur", davlat: "Italiya", emoji: "🍕", vaqt: "60 daqiqa",
+    ingredientlar: ["Pitsa xamiri", "Pomidor sousi", "Pishloq", "Kolbasa yoki sabzavot"],
+    qadamlar: ["Xamirni yoying.", "Sous, pishloq va qo'shimchalarni joylang.", "220 darajada 15 daqiqa pishiring."],
+    video: ""
+  },
+  {
+    nom: "Gamburger", bolim: "mashhur", davlat: "AQSH", emoji: "🍔", vaqt: "30 daqiqa",
+    ingredientlar: ["Bulochka: 4 dona", "Qiyma: 500 g", "Pishloq: 4 tilim", "Salat bargi, pomidor, bodring", "Tuz va murch"],
+    qadamlar: ["Qiymaga tuz va murch solib, 4 ta kotlet shakllang.", "Har tomonini 4-5 daqiqa qovuring, oxirida ustiga pishloq qo'ying.", "Bulochkani yarimga bo'lib qizdiring.", "Salat, pomidor, kotlet va bodringni terib, yig'ing."],
+    video: ""
+  },
+  {
+    nom: "Karbonara", bolim: "mashhur", davlat: "Italiya", emoji: "🍝", vaqt: "25 daqiqa",
+    ingredientlar: ["Spagetti: 300 g", "Bekon yoki dudlangan go'sht: 150 g", "Tuxum sarig'i: 3 dona", "Parmezan pishlog'i: 60 g", "Qora murch"],
+    qadamlar: ["Spagettini tuzli suvda qaynating.", "Bekonni quruq tovada qovuring.", "Sarig'i, maydalangan pishloq va murchni aralashtiring.", "Issiq spagettini bekonga qo'shing, olovni o'chirib, aralashmani soling va tez aralashtiring."],
+    video: ""
+  },
+  {
+    nom: "Tako", bolim: "mashhur", davlat: "Meksika", emoji: "🌮", vaqt: "30 daqiqa",
+    ingredientlar: ["Tortilya: 6 dona", "Qiyma: 400 g", "Pomidor: 2 dona", "Salat bargi", "Pishloq", "Tako ziravori: 1 osh qoshiq"],
+    qadamlar: ["Qiymani ziravor bilan 10 daqiqa qovuring.", "Pomidor va salatni to'g'rang.", "Tortilyani qizdirib, ichiga qiyma, sabzavot va pishloq soling."],
+    video: ""
+  },
+  {
+    nom: "Sezar salati", bolim: "mashhur", davlat: "Dunyo bo'ylab", emoji: "🥗", vaqt: "25 daqiqa",
+    ingredientlar: ["Salat bargi: 1 bog'", "Tovuq filesi: 300 g", "Non krutonlari", "Parmezan pishlog'i", "Sous: mayonez, sarimsoq va limon sharbati"],
+    qadamlar: ["Tovuq filesini tuz va murch bilan qovurib, bo'laklarga to'g'rang.", "Salat bargini yirik uzib, likopchaga soling.", "Tovuq, krutonlar va pishloqni ustiga qo'ying.", "Sousni quyib, aralashtirmasdan dasturxonga torting."],
+    video: ""
+  },
+
+  // ===== SHIRINLIKLAR =====
+  {
+    nom: "Shokoladli keks", bolim: "shirin", davlat: "Shirinlik", emoji: "🧁", vaqt: "45 daqiqa",
+    ingredientlar: ["Un: 200 g", "Shakar: 150 g", "Tuxum: 2 dona", "Kakao: 3 osh qoshiq", "Sut: 150 ml"],
+    qadamlar: ["Hamma narsani aralashtiring.", "Qolipga quying.", "180 darajada 30 daqiqa pishiring."],
+    video: ""
+  },
+  {
+    nom: "Tiramisu", bolim: "shirin", davlat: "Italiya", emoji: "🍰", vaqt: "30 daqiqa + 4 soat sovitish",
+    ingredientlar: ["Maskarpone: 250 g", "Qaymoq: 200 ml", "Pudra shakar: 3 osh qoshiq", "Savoyardi pechenyesi: 200 g", "Sovigan qahva: 200 ml", "Kakao"],
+    qadamlar: ["Maskarpone, qaymoq va pudrani ko'pirguncha aralashtiring.", "Pechenyeni qahvaga tez botirib, qolipga bir qavat tering.", "Ustiga krem, keyin yana pechenye va krem qavatlang.", "Kakao seping va muzlatgichda kamida 4 soat sovuting."],
+    video: ""
+  },
+  {
+    nom: "Tvorogli sirniki", bolim: "shirin", davlat: "Shirinlik", emoji: "🧀", vaqt: "25 daqiqa",
+    ingredientlar: ["Tvorog: 400 g", "Tuxum: 1 dona", "Un: 4 osh qoshiq", "Shakar: 2 osh qoshiq", "Vanil"],
+    qadamlar: ["Tvorog, tuxum, shakar va vanilni aralashtiring.", "Un qo'shib, qo'lga yopishmaydigan massa qiling.", "Yumaloq shakl berib, unga belang.", "Yog'li tovada har tomonini 3 daqiqa qovuring."],
+    video: ""
+  },
+  {
+    nom: "Qumli pechenye", bolim: "shirin", davlat: "Shirinlik", emoji: "🍪", vaqt: "40 daqiqa",
+    ingredientlar: ["Un: 300 g", "Sariyog': 150 g", "Shakar: 100 g", "Tuxum: 1 dona"],
+    qadamlar: ["Yumshoq sariyog' va shakarni aralashtiring.", "Tuxum va unni qo'shib, xamir qiling.", "Xamirni yoyib, qoliplar bilan kesing.", "180 darajada 15 daqiqa pishiring."],
+    video: ""
+  },
+  {
+    nom: "Shokoladli brauni", bolim: "shirin", davlat: "Shirinlik", emoji: "🍫", vaqt: "45 daqiqa",
+    ingredientlar: ["Shokolad: 150 g", "Sariyog': 100 g", "Shakar: 150 g", "Tuxum: 2 dona", "Un: 70 g"],
+    qadamlar: ["Shokolad va sariyog'ni suv hammomida eritib, biroz sovuting.", "Shakar va tuxumni qo'shib aralashtiring.", "Unni elab soling va silliq qiling.", "Qolipga quyib, 180 darajada 25 daqiqa pishiring."],
+    video: ""
+  }
+];
+
+let joriyBolim = ""; // bo'sh = bosh sahifa
+
+function kartaHtml(r, i) {
+  return `<div class="karta">
+    <div class="rasm">${r.emoji}</div>
+    <div class="matn">
+      <div class="nom">${r.nom}</div>
+      <div class="kichik">${r.davlat} · ${r.vaqt}</div>
+      <button class="btn" onclick="ochish(${i})">Retsept</button>
+    </div>
+  </div>`;
+}
+
+function chiz() {
+  const soz = document.getElementById("qidiruv").value.trim().toLowerCase();
+  const bosh = document.getElementById("bosh");
+  const tablar = document.getElementById("tablar");
+  const setka = document.getElementById("setka");
+
+  if (soz) {
+    // Qidiruv: hamma bo'limlardan
+    bosh.style.display = "none";
+    tablar.style.display = "none";
+    setka.style.display = "grid";
+    let html = "";
+    retseptlar.forEach((r, i) => {
+      if (r.nom.toLowerCase().includes(soz)) html += kartaHtml(r, i);
+    });
+    setka.innerHTML = html || '<p class="bosh-xabar">Hech narsa topilmadi</p>';
+    return;
+  }
+
+  if (joriyBolim === "") {
+    // Bosh sahifa: 4 ta katta tugma
+    tablar.style.display = "none";
+    setka.style.display = "none";
+    bosh.style.display = "block";
+    let html = "";
+    bolimlar.forEach(b => {
+      const soni = retseptlar.filter(r => r.bolim === b.kod).length;
+      html += `<button class="katta" onclick="bolimTanla('${b.kod}')">
+        <span class="e">${b.emoji}</span>
+        <span>${b.nom}<small>${soni} ta retsept</small></span>
+      </button>`;
+    });
+    bosh.innerHTML = html;
+    return;
+  }
+
+  // Bo'lim ichi: tepada bo'limlar, ostida retseptlar
+  bosh.style.display = "none";
+  tablar.style.display = "flex";
+  setka.style.display = "grid";
+  tablar.innerHTML = bolimlar.map(b =>
+    `<button class="bolim ${b.kod === joriyBolim ? "faol" : ""}" onclick="bolimTanla('${b.kod}')">${b.nom}</button>`
+  ).join("");
+  let html = "";
+  retseptlar.forEach((r, i) => {
+    if (r.bolim === joriyBolim) html += kartaHtml(r, i);
+  });
+  setka.innerHTML = html || '<p class="bosh-xabar">Bu bo\'limga tez orada retsept qo\'shiladi</p>';
+  const faol = tablar.querySelector(".faol");
+  if (faol) faol.scrollIntoView({ inline: "center", block: "nearest" });
+}
+
+function bolimTanla(kod) {
+  joriyBolim = kod;
+  document.getElementById("qidiruv").value = "";
+  chiz();
+  window.scrollTo(0, 0);
+}
+
+function boshSahifa() {
+  joriyBolim = "";
+  document.getElementById("qidiruv").value = "";
+  menuYopish();
+  panelYopish();
+  yopish();
+  chiz();
+  window.scrollTo(0, 0);
+}
+
+function ochish(i) {
+  const r = retseptlar[i];
+  let html = `<button class="orqaga" onclick="yopish()">← Orqaga</button>
+    <h2>${r.emoji} ${r.nom}</h2>
+    <p>${r.davlat} · ${r.vaqt}</p>
+    <h3>Ingredientlar</h3><ul>`;
+  r.ingredientlar.forEach(x => html += `<li>${x}</li>`);
+  html += `</ul><h3>Tayyorlash</h3><ol>`;
+  r.qadamlar.forEach(x => html += `<li>${x}</li>`);
+  html += `</ol>`;
+  if (r.video) {
+    html += `<a class="video" href="${r.video}" target="_blank" rel="noopener">▶ Qisqa videoni ko'rish</a>`;
+  }
+  const oyna = document.getElementById("oyna");
+  oyna.innerHTML = html;
+  oyna.style.display = "block";
+  oyna.scrollTop = 0;
+}
+
+function yopish() {
+  document.getElementById("oyna").style.display = "none";
+}
+
+/* Yon menyu va panellar */
+function menuOchish() {
+  document.getElementById("menu").classList.add("ochiq");
+  document.getElementById("parda").style.display = "block";
+}
+function menuYopish() {
+  document.getElementById("menu").classList.remove("ochiq");
+  document.getElementById("parda").style.display = "none";
+}
+
+const ranglar = ["#ff6a00", "#e03131", "#d6336c", "#9c36b5", "#5f3dc4", "#2b6fd6", "#0c8599", "#2e9e5b", "#5c940d", "#343a40"];
+
+const panellar = {
+  kirish: `<h2>👤 Hisobga kirish</h2>
+    <p>Hisob tizimi tez orada qo'shiladi. Yangiliklardan xabardor bo'lish uchun Instagram'da kuzating.</p>`,
+  premium: `<h2>⭐ Premium obuna</h2>
+    <div class="narx">33 000 so'm / oy</div>
+    <ul>
+      <li>Maxsus retseptlar</li>
+      <li>Yangi taomlarni birinchi bo'lib ko'rish</li>
+      <li>Reklamasiz foydalanish</li>
+    </ul>
+    <a class="video" href="https://t.me/Yahyobek_odilv" target="_blank" rel="noopener">Telegramdagi vip chatga qo'shilish</a>`,
+  dizayn: `<h2>🎨 Dizaynni moslash</h2>
+    <p>Sayt rangini tanlang:</p>
+    <div class="ranglar">` +
+    ranglar.map(r => `<button class="rang" style="background:${r}" onclick="rangQoy('${r}')"></button>`).join("") +
+    `</div>`
+};
+
+function panelOchish(nom) {
+  menuYopish();
+  const p = document.getElementById("panel");
+  p.innerHTML = panellar[nom] + `<button class="yop" onclick="panelYopish()">Yopish</button>`;
+  p.style.display = "block";
+}
+function panelYopish() {
+  document.getElementById("panel").style.display = "none";
+}
+
+function rangQoy(rang) {
+  document.documentElement.style.setProperty("--asosiy", rang);
+  try { localStorage.setItem("rang", rang); } catch (e) {}
+}
+
+try {
+  const saqlangan = localStorage.getItem("rang");
+  if (saqlangan) rangQoy(saqlangan);
+} catch (e) {}
+
+chiz();
+</script>
+</body>
+</html>
