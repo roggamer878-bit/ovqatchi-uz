@@ -75,7 +75,7 @@ header { background: var(--asosiy); padding: 12px; position: sticky; top: 0; z-i
   <button class="mb" onclick="panelOchish('kirish')">👤 Hisobga kirish</button>
   <button class="mb" onclick="panelOchish('premium')">⭐ Premium obuna</button>
   <button class="mb" onclick="panelOchish('dizayn')">🎨 Dizaynni moslash</button>
-  <a class="mb" href="https://instagram.com/ovqatchiuz" target="_blank" rel="noopener">📸 Instagram'da kuzating</a>
+  <a class="mb" href="https://instagram.com/username" target="_blank" rel="noopener">📸 Instagram'da kuzating</a>
 </div>
 <div id="panel"></div>
 
@@ -238,7 +238,6 @@ function chiz() {
   const setka = document.getElementById("setka");
 
   if (soz) {
-    // Qidiruv: hamma bo'limlardan
     bosh.style.display = "none";
     tablar.style.display = "none";
     setka.style.display = "grid";
@@ -251,7 +250,6 @@ function chiz() {
   }
 
   if (joriyBolim === "") {
-    // Bosh sahifa: 4 ta katta tugma
     tablar.style.display = "none";
     setka.style.display = "none";
     bosh.style.display = "block";
@@ -267,7 +265,6 @@ function chiz() {
     return;
   }
 
-  // Bo'lim ichi: tepada bo'limlar, ostida retseptlar
   bosh.style.display = "none";
   tablar.style.display = "flex";
   setka.style.display = "grid";
@@ -283,24 +280,37 @@ function chiz() {
   if (faol) faol.scrollIntoView({ inline: "center", block: "nearest" });
 }
 
+/* Bo'limni tanlash (tarixga yoziladi) */
 function bolimTanla(kod) {
+  const bolimdaEdi = joriyBolim !== "";
   joriyBolim = kod;
   document.getElementById("qidiruv").value = "";
+  if (bolimdaEdi) history.replaceState({ b: kod }, "");
+  else history.pushState({ b: kod }, "");
   chiz();
   window.scrollTo(0, 0);
 }
 
 function boshSahifa() {
-  joriyBolim = "";
-  document.getElementById("qidiruv").value = "";
   menuYopish();
   panelYopish();
-  yopish();
+  oynaYop();
+  document.getElementById("qidiruv").value = "";
+  if (joriyBolim !== "") {
+    joriyBolim = "";
+    history.pushState({ b: "" }, "");
+  }
   chiz();
   window.scrollTo(0, 0);
 }
 
+/* Retseptni ochish (tarixga yoziladi) */
 function ochish(i) {
+  history.pushState({ b: joriyBolim, r: i }, "");
+  korsat(i);
+}
+
+function korsat(i) {
   const r = retseptlar[i];
   let html = `<button class="orqaga" onclick="yopish()">← Orqaga</button>
     <h2>${r.emoji} ${r.nom}</h2>
@@ -319,9 +329,27 @@ function ochish(i) {
   oyna.scrollTop = 0;
 }
 
-function yopish() {
+function oynaYop() {
   document.getElementById("oyna").style.display = "none";
 }
+
+function yopish() {
+  if (history.state && history.state.r !== undefined) history.back();
+  else oynaYop();
+}
+
+/* Telefonning "orqaga" tugmasi */
+history.replaceState({ b: "" }, "");
+window.addEventListener("popstate", function (e) {
+  const s = e.state || { b: "" };
+  menuYopish();
+  panelYopish();
+  document.getElementById("qidiruv").value = "";
+  joriyBolim = s.b || "";
+  if (s.r !== undefined) korsat(s.r);
+  else oynaYop();
+  chiz();
+});
 
 /* Yon menyu va panellar */
 function menuOchish() {
@@ -345,7 +373,7 @@ const panellar = {
       <li>Yangi taomlarni birinchi bo'lib ko'rish</li>
       <li>Reklamasiz foydalanish</li>
     </ul>
-    <a class="video" href="https://t.me/Yahyobek_odilv" target="_blank" rel="noopener">Telegramdagi vip chatga qo'shilish</a>`,
+    <a class="video" href="https://t.me/username" target="_blank" rel="noopener">Telegram orqali obuna bo'lish</a>`,
   dizayn: `<h2>🎨 Dizaynni moslash</h2>
     <p>Sayt rangini tanlang:</p>
     <div class="ranglar">` +
